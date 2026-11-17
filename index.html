@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#064D3B">
+<title>Discover Brazil · Passport Quiz</title>
+<meta name="description" content="Test your Brazil knowledge and earn your passport stamp at the Latine Community Fair in Tallinn.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23009C3B'/><path d='M50 14 90 50 50 86 10 50z' fill='%23FEDF00'/><circle cx='50' cy='50' r='18' fill='%23002776'/></svg>">
+<style>
+  :root{
+    --green:#064D3B; --green-2:#0A6B52; --leaf:#009C3B;
+    --yellow:#F8BE2F; --blue:#002776; --ink:#10231C; --muted:#5B6B65;
+    --paper:#FFFFFF; --mist:#F3F7F5; --ok:#0E9F6E; --bad:#D64545;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+    background:var(--green); color:var(--paper);
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    min-height:100dvh; display:flex; justify-content:center;
+  }
+  .app{width:100%;max-width:480px;min-height:100dvh;display:flex;flex-direction:column;padding:24px 20px calc(24px + env(safe-area-inset-bottom))}
+  .screen{display:none;flex:1;flex-direction:column}
+  .screen.active{display:flex;animation:in .35s ease}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .eyebrow{color:var(--yellow);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:34px;line-height:1.1;font-weight:800;margin:10px 0 12px}
+  .lead{font-size:17px;line-height:1.5;color:#D6E6E0}
+
+  /* Start */
+  .flag{width:120px;height:84px;margin:40px auto 28px;position:relative}
+  .flag svg{width:100%;height:100%;filter:drop-shadow(0 10px 24px rgba(0,0,0,.25))}
+  .start-body{text-align:center;flex:1}
+  .facts{display:flex;gap:10px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap}
+  .chip{background:rgba(255,255,255,.1);border-radius:999px;padding:8px 14px;font-size:14px;color:#E6F1ED}
+  .field{margin-top:28px;text-align:left}
+  .field label{display:block;font-size:14px;color:#D6E6E0;margin-bottom:8px}
+  .field input{width:100%;font-size:17px;padding:14px 16px;border-radius:14px;border:2px solid transparent;background:var(--paper);color:var(--ink);outline:none}
+  .field input:focus{border-color:var(--yellow)}
+
+  .btn{display:block;width:100%;border:0;border-radius:16px;padding:17px 20px;font-size:17px;font-weight:700;cursor:pointer;transition:transform .1s ease,opacity .2s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--yellow);color:var(--ink)}
+  .btn-ghost{background:transparent;color:var(--paper);border:2px solid rgba(255,255,255,.35);margin-top:12px}
+  .btn[disabled]{opacity:.4;pointer-events:none}
+  .bottom{margin-top:24px}
+
+  /* Quiz */
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .progress{flex:1;height:8px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden}
+  .progress i{display:block;height:100%;width:0;background:var(--yellow);border-radius:99px;transition:width .4s ease}
+  .count{font-size:14px;font-weight:700;color:#D6E6E0;min-width:44px;text-align:right}
+  .card{background:var(--paper);color:var(--ink);border-radius:24px;padding:22px 20px;box-shadow:0 18px 40px rgba(0,0,0,.18)}
+  .q-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-2);background:#E3F2EC;padding:6px 10px;border-radius:99px}
+  .q-text{font-size:22px;line-height:1.3;font-weight:800;margin:14px 0 18px}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-size:16px;font-weight:600;color:var(--ink);background:var(--mist);border:2px solid transparent;border-radius:14px;padding:14px;cursor:pointer;transition:background .15s,border-color .15s}
+  .opt .k{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--paper);font-size:14px;font-weight:800;color:var(--green)}
+  .opt:hover{border-color:#CFE3DB}
+  .opt.correct{background:#E3F6EE;border-color:var(--ok)}
+  .opt.correct .k{background:var(--ok);color:#fff}
+  .opt.wrong{background:#FCEBEB;border-color:var(--bad)}
+  .opt.wrong .k{background:var(--bad);color:#fff}
+  .opt[disabled]{cursor:default}
+  .feedback{display:none;margin-top:16px;padding:14px;border-radius:14px;background:#FFF7DF;font-size:15px;line-height:1.45;color:#4A3B00}
+  .feedback.show{display:block;animation:in .3s ease}
+  .feedback b{display:block;margin-bottom:4px;color:var(--ink)}
+
+  /* Result */
+  .result{text-align:center;flex:1}
+  .passport{position:relative;margin:26px auto 20px;background:#F4EFE3;color:var(--ink);border-radius:20px;padding:22px 18px 26px;box-shadow:0 18px 40px rgba(0,0,0,.25);overflow:hidden}
+  .passport:before{content:"";position:absolute;inset:10px;border:1.5px dashed #C9BFA6;border-radius:14px;pointer-events:none}
+  .pp-head{font-size:12px;font-weight:800;letter-spacing:.18em;color:#7A6D4D;text-transform:uppercase}
+  .pp-name{font-size:22px;font-weight:800;margin:6px 0 2px;word-break:break-word}
+  .pp-meta{font-size:13px;color:#7A6D4D}
+  .stamp{width:190px;height:190px;margin:18px auto 6px;transform:rotate(-9deg) scale(.2);opacity:0}
+  .stamp.go{animation:stamp .55s cubic-bezier(.2,1.6,.4,1) forwards .2s}
+  @keyframes stamp{to{transform:rotate(-9deg) scale(1);opacity:1}}
+  .score{font-size:44px;font-weight:900;color:var(--yellow);margin-top:6px}
+  .verdict{font-size:18px;font-weight:700;margin-top:4px}
+  .hint{font-size:14px;color:#D6E6E0;margin-top:12px;line-height:1.5}
+  .review{margin-top:22px;text-align:left;display:grid;gap:8px}
+  .review div{background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4;color:#E6F1ED}
+  .review span{font-weight:800;margin-right:6px}
+  footer{text-align:center;font-size:12px;color:#9FC1B5;margin-top:18px}
+</style>
+</head>
+<body>
+<main class="app">
+
+  <!-- START -->
+  <section class="screen active" id="s-start" aria-labelledby="t-start">
+    <div class="start-body">
+      <div class="flag" aria-hidden="true">
+        <svg viewBox="0 0 120 84"><rect width="120" height="84" rx="10" fill="#009C3B"/><path d="M60 8 112 42 60 76 8 42z" fill="#FEDF00"/><circle cx="60" cy="42" r="19" fill="#002776"/><path d="M42 38c12-4 26-2 37 6" stroke="#fff" stroke-width="3" fill="none"/></svg>
+      </div>
+      <p class="eyebrow">Passport Stamp Challenge</p>
+      <h1 id="t-start">How well do you know Brazil?</h1>
+      <p class="lead">10 quick questions about Brazil’s biomes, cities, food and people. Finish the quiz and show your stamp at our stand.</p>
+      <div class="facts"><span class="chip">⏱ About 2 minutes</span><span class="chip">🇧🇷 10 questions</span><span class="chip">🎖 Stamp at the end</span></div>
+      <div class="field">
+        <label for="name">Your name (it goes on your passport stamp)</label>
+        <input id="name" type="text" maxlength="28" autocomplete="given-name" placeholder="e.g. Kadri" enterkeyhint="go">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" id="b-start">Start the quiz</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="screen" id="s-quiz" aria-live="polite">
+    <div class="top">
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="10"><i id="bar"></i></div>
+      <span class="count" id="count">1/10</span>
+    </div>
+    <div class="card">
+      <span class="q-tag" id="q-tag"></span>
+      <h2 class="q-text" id="q-text"></h2>
+      <div class="opts" id="opts"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" id="b-next" disabled>Next question</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="s-result">
+    <div class="result">
+      <p class="eyebrow">Quiz complete</p>
+      <div class="passport">
+        <div class="pp-head">Latine Community Fair · Tallinn</div>
+        <div class="pp-name" id="pp-name">Traveller</div>
+        <div class="pp-meta" id="pp-meta"></div>
+        <div class="stamp" id="stamp" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <defs><path id="arcTop" d="M30 100a70 70 0 0 1 140 0"/><path id="arcBot" d="M24 100a76 76 0 0 0 152 0"/></defs>
+            <g fill="none" stroke="#1B7A3E" opacity=".92">
+              <circle cx="100" cy="100" r="92" stroke-width="5"/>
+              <circle cx="100" cy="100" r="80" stroke-width="2"/>
+              <circle cx="100" cy="100" r="50" stroke-width="2"/>
+            </g>
+            <g fill="#1B7A3E" opacity=".92" font-family="system-ui,Arial,sans-serif" font-weight="900">
+              <text font-size="17" letter-spacing="5"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">REPÚBLICA FEDERATIVA</textPath></text>
+              <text font-size="15" letter-spacing="4"><textPath href="#arcBot" startOffset="50%" text-anchor="middle" id="stamp-date">VISITED</textPath></text>
+              <path d="M100 66 132 100 100 134 68 100z" fill="#F8BE2F" opacity=".9"/>
+              <circle cx="100" cy="100" r="15" fill="#002776" opacity=".85"/>
+              <text x="100" y="168" font-size="0">.</text>
+            </g>
+            <text x="100" y="40" text-anchor="middle" font-size="0">.</text>
+            <g font-family="system-ui,Arial,sans-serif" font-weight="900" fill="#1B7A3E">
+              <text x="100" y="58" text-anchor="middle" font-size="14" letter-spacing="3">DO</text>
+              <text x="100" y="156" text-anchor="middle" font-size="24" letter-spacing="6">BRASIL</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="score" id="score">0/10</div>
+      <div class="verdict" id="verdict"></div>
+      <p class="hint">Show this screen at the Brazil stand to collect your passport stamp — and grab a pão de queijo! 🧀</p>
+      <div class="review" id="review"></div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-ghost" id="b-again">Play again</button>
+    </div>
+  </section>
+
+  <footer>Discover Brazil · Latine Community Fair</footer>
+</main>
+
+<script>
+const QUESTIONS = [
+  { tag:"🌎 Geography", q:"Brazil is the ___ largest country on Earth.",
+    o:["3rd","5th","7th","10th"], a:1,
+    f:"Brazil covers 8.5 million km² across 4 time zones — bigger than the contiguous United States." },
+  { tag:"🌿 Nature", q:"How many continental biomes does Brazil have?",
+    o:["3","4","6","9"], a:2,
+    f:"Amazon, Atlantic Forest, Cerrado, Caatinga, Pantanal and Pampa." },
+  { tag:"🌳 Nature", q:"Roughly how much of Brazil’s territory is covered by the Amazon biome?",
+    o:["About 10%","About 25%","About 49%","About 80%"], a:2,
+    f:"Nearly half of Brazil is Amazon — Earth’s largest tropical rainforest." },
+  { tag:"🏛 Cities", q:"What is the capital of Brazil?",
+    o:["Rio de Janeiro","São Paulo","Salvador","Brasília"], a:3,
+    f:"Brasília was planned from scratch and built in just 41 months, opening in 1960." },
+  { tag:"🥁 Culture", q:"Capoeira — part martial art, part dance — was born in which state?",
+    o:["Bahia","Paraná","Amazonas","Goiás"], a:0,
+    f:"Salvador, Bahia — Brazil’s first capital (1549) — is the heart of Afro-Brazilian culture." },
+  { tag:"🦜 Wildlife", q:"Which animal is the largest big cat in the Americas?",
+    o:["Puma","Ocelot","Jaguar (onça-pintada)","Lynx"], a:2,
+    f:"The jaguar lives in the Amazon and the Pantanal, and is a powerful swimmer." },
+  { tag:"💧 Nature", q:"The Pantanal, in Brazil’s Central-West, is the world’s largest…",
+    o:["Desert","Wetland","Coral reef","Glacier"], a:1,
+    f:"It floods every year and is one of the best places on Earth to spot jaguars and capybaras." },
+  { tag:"🧀 Food", q:"Pão de queijo — today’s tasting at our stand — is made with cheese and…",
+    o:["Wheat flour","Corn flour","Cassava (tapioca) flour","Rice flour"], a:2,
+    f:"Cassava starch makes it naturally gluten-free and chewy. It comes from Minas Gerais." },
+  { tag:"🍲 Food", q:"Feijoada, Brazil’s famous stew, is made mainly with…",
+    o:["Black beans","Lentils","Chickpeas","Potatoes"], a:0,
+    f:"Slow-cooked black beans with pork, served with rice, collard greens and toasted cassava flour." },
+  { tag:"🏅 People", q:"Rebeca Andrade, Brazil’s most decorated Olympian, competes in…",
+    o:["Football","Swimming","Volleyball","Gymnastics"], a:3,
+    f:"She won gold on the floor in Paris 2024, beating Simone Biles." }
+];
+
+const $ = id => document.getElementById(id);
+const show = id => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); };
+let order=[], i=0, score=0, answers=[], name="";
+
+function shuffle(a){ a=[...a]; for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1)); [a[k],a[j]]=[a[j],a[k]];} return a; }
+
+function start(){
+  name = $('name').value.trim() || "Traveller";
+  order = shuffle(QUESTIONS.map((q,idx)=>idx)); i=0; score=0; answers=[];
+  show('s-quiz'); render();
+}
+
+function render(){
+  const Q = QUESTIONS[order[i]];
+  $('count').textContent = `${i+1}/${QUESTIONS.length}`;
+  $('bar').style.width = `${(i/QUESTIONS.length)*100}%`;
+  $('q-tag').textContent = Q.tag;
+  $('q-text').textContent = Q.q;
+  const box = $('opts'); box.innerHTML = "";
+  Q.o.forEach((txt,idx)=>{
+    const b=document.createElement('button'); b.className='opt'; b.type='button';
+    b.innerHTML=`<span class="k">${"ABCD"[idx]}</span><span></span>`; b.lastChild.textContent=txt;
+    b.onclick=()=>pick(idx); box.appendChild(b);
+  });
+  $('fb').className='feedback'; $('fb').innerHTML="";
+  $('b-next').disabled = true;
+  $('b-next').textContent = i===QUESTIONS.length-1 ? "See my stamp" : "Next question";
+}
+
+function pick(idx){
+  const Q = QUESTIONS[order[i]], btns=[...$('opts').children], ok = idx===Q.a;
+  btns.forEach((b,k)=>{ b.disabled=true; if(k===Q.a) b.classList.add('correct'); else if(k===idx) b.classList.add('wrong'); });
+  if(ok) score++;
+  answers.push({q:Q.q, ok, right:Q.o[Q.a]});
+  const fb=$('fb'); fb.innerHTML=`<b>${ok?"✅ Correct!":"❌ Not quite — it’s "+Q.o[Q.a]}</b>`; fb.append(Q.f); fb.classList.add('show');
+  $('bar').style.width = `${((i+1)/QUESTIONS.length)*100}%`;
+  $('b-next').disabled=false;
+  if(navigator.vibrate) navigator.vibrate(ok?30:[20,40,20]);
+}
+
+function next(){ if(++i<QUESTIONS.length) render(); else finish(); }
+
+function finish(){
+  const d = new Date();
+  const ds = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+  $('pp-name').textContent = name;
+  $('pp-meta').textContent = `Entry stamp · ${ds}`;
+  $('stamp-date').textContent = `VISITED · ${ds}`;
+  $('score').textContent = `${score}/${QUESTIONS.length}`;
+  $('verdict').textContent = score===10 ? "Perfeito! You’re practically Brazilian 🇧🇷"
+    : score>=7 ? "Muito bem! Great Brazil knowledge 🎉"
+    : score>=4 ? "Bom trabalho! Come chat with us to learn more 💬"
+    : "Welcome to Brazil! Visit our stand and learn more 🌴";
+  const r=$('review'); r.innerHTML="";
+  answers.forEach(a=>{ const el=document.createElement('div'); el.innerHTML=`<span>${a.ok?"✅":"❌"}</span>`; el.append(a.ok?a.q:`${a.q} — ${a.right}`); r.appendChild(el); });
+  show('s-result');
+  const s=$('stamp'); s.classList.remove('go'); void s.offsetWidth; s.classList.add('go');
+  if(navigator.vibrate) navigator.vibrate([0,250,60]);
+}
+
+$('b-start').onclick = start;
+$('name').addEventListener('keydown', e=>{ if(e.key==='Enter') start(); });
+$('b-next').onclick = next;
+$('b-again').onclick = ()=>show('s-start');
+</script>
+</body>
+</html>
